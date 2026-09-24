@@ -191,6 +191,7 @@ const DEFAULT_CATEGORIES = [
 
 function createPgMock() {
   const jobs = new Map();
+  const ratings = new Map();
   const applications = new Map();
   const invitations = new Set();
   const skillsMap = new Map();
@@ -421,6 +422,22 @@ function createPgMock() {
         rows = rows.filter((job) => !job.deleted_at);
       }
       return { rows: rows.map(formatJobRow) };
+    }
+
+    // ─── Ratings Queries ────────────────────────────────────────────────
+    if (
+      text.includes("FROM ratings") &&
+      text.includes("job_id = $1") &&
+      text.includes("rater_address = $2") &&
+      text.includes("rated_address = $3")
+    ) {
+      const found = [...ratings.values()].find(
+        (rating) =>
+          rating.job_id === params[0] &&
+          rating.rater_address === params[1] &&
+          rating.rated_address === params[2],
+      );
+      return { rows: found ? [{ "?column?": 1 }] : [] };
     }
 
     // ─── INSERT INTO escrows / UPDATE escrows ─────────────────────────────
@@ -1306,6 +1323,7 @@ function createPgMock() {
 
   function reset() {
     jobs.clear();
+    ratings.clear();
     applications.clear();
     invitations.clear();
     skillsMap.clear();
@@ -1328,6 +1346,7 @@ function createPgMock() {
     query,
     connect,
     jobs,
+    ratings,
     applications,
     invitations,
     daoProposals,
