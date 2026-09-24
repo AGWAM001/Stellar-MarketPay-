@@ -47,6 +47,9 @@ const { PriceAlertService } = require("./services/priceAlertService");
 const pool                  = require("./db/pool");
 const { scheduleStatsRefresh } = require("./services/statsService");
 
+// Start audit worker — processes fire-and-forget audit log writes
+require("./workers/auditWorker");
+
 const app  = express();
 const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
